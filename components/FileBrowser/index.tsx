@@ -27,7 +27,7 @@ import { hasAccess, useApiAccess } from "~/providers/ApiAccessProvider";
 import { useFileActionHandler } from "./useFileActionHandler";
 import { useTheme } from "@mui/material/styles";
 import NoTitleLayout from "../NoTitleLayout";
-import { MuiThemeProvider } from "@material-ui/core";
+import { ThemeProvider } from "@mui/material/styles";
 
 setChonkyDefaults({ iconComponent: ChonkyIconFA });
 
@@ -186,7 +186,7 @@ export default function Browser({ bucket }: Props) {
   return (
     <NoTitleLayout>
       <div style={{ height: 400 }}>
-        <MuiThemeProvider theme={theme}>
+        <ThemeProvider theme={theme}>
           <FullFileBrowser
             darkMode={theme.palette.mode === "dark"}
             files={files}
@@ -197,7 +197,7 @@ export default function Browser({ bucket }: Props) {
             disableDragAndDrop={false}
             i18n={MemoI18n}
           />
-        </MuiThemeProvider>
+        </ThemeProvider>
       </div>
       {hasAccess(apiContext, `fileHandler:${bucket}:create`) && (
         <UploadModal
