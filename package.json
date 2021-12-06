@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "concurrently \"graphql-codegen --config codegen.yml --watch\" \"next dev\"",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p $PORT",
     "generate": "graphql-codegen --config codegen.yml",
     "tsc": "tsc"
   },

@@ -1,18 +1,18 @@
-import React, { useContext } from 'react';
-import { useTranslation } from 'next-i18next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { useRouter } from 'next/router';
-import { useKeycloak } from '@react-keycloak/ssr';
-import { KeycloakInstance } from 'keycloak-js';
-import { useMemberPageQuery } from '~/generated/graphql';
-import Member from '~/components/Members/Member';
-import MemberSkeleton from '~/components/Members/MemberSkeleton';
-import routes from '~/routes';
-import { Button, Paper } from '@mui/material';
-import { commonPageStyles } from '~/styles/commonPageStyles';
-import UserContext from '~/providers/UserProvider';
-import { getClassYear, getFullName } from '~/functions/memberFunctions';
-import NoTitleLayout from '~/components/NoTitleLayout';
+import React, { useContext } from "react";
+import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { useRouter } from "next/router";
+import { useKeycloak } from "@react-keycloak/ssr";
+import { KeycloakInstance } from "keycloak-js";
+import { useMemberPageQuery } from "~/generated/graphql";
+import Member from "~/components/Members/Member";
+import MemberSkeleton from "~/components/Members/MemberSkeleton";
+import routes from "~/routes";
+import { Button, Paper } from "@mui/material";
+import { commonPageStyles } from "~/styles/commonPageStyles";
+import UserContext from "~/providers/UserProvider";
+import { getClassYear, getFullName } from "~/utils/memberFunctions";
+import NoTitleLayout from "~/components/NoTitleLayout";
 
 export default function MemberPage() {
   const router = useRouter();
@@ -23,7 +23,7 @@ export default function MemberPage() {
     variables: { id: id },
   });
   const classes = commonPageStyles();
-  const { t } = useTranslation(['common', 'member']);
+  const { t } = useTranslation(["common", "member"]);
 
   if (loading || !initialized || userLoading) {
     return (
@@ -38,7 +38,7 @@ export default function MemberPage() {
   const member = data?.memberById;
 
   if (!member) {
-    return <>{t('memberError')}</>;
+    return <>{t("memberError")}</>;
   }
   return (
     <NoTitleLayout>
@@ -50,7 +50,7 @@ export default function MemberPage() {
           picture_path={member.picture_path}
         />
         {member.id === user?.id && (
-          <Button href={routes.editMember(id)}>{t('member:editMember')}</Button>
+          <Button href={routes.editMember(id)}>{t("member:editMember")}</Button>
         )}
       </Paper>
     </NoTitleLayout>
@@ -60,7 +60,7 @@ export default function MemberPage() {
 export async function getServerSideProps({ locale }) {
   return {
     props: {
-      ...(await serverSideTranslations(locale, ['common', 'member'])),
+      ...(await serverSideTranslations(locale, ["common", "member"])),
     },
   };
 }

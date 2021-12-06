@@ -1,11 +1,11 @@
-import React from 'react';
-import { useTranslation } from 'next-i18next';
-import { Link, TableCell, TableRow } from '@mui/material';
-import { BookingRequest, Member } from '~/generated/graphql';
-import routes from '~/routes';
-import BookingTableModifedStatusCell from './bookingTableModifedStatusCell';
-import fromIsoToShortDate from '~/functions/fromIsoToShortDate';
-import { getFullName } from '~/functions/memberFunctions';
+import React from "react";
+import { useTranslation } from "next-i18next";
+import { Link, TableCell, TableRow } from "@mui/material";
+import { BookingRequest, Member } from "~/generated/graphql";
+import routes from "~/routes";
+import BookingTableModifedStatusCell from "./bookingTableModifedStatusCell";
+import fromIsoToShortDate from "~/utils/fromIsoToShortDate";
+import { getFullName } from "~/utils/memberFunctions";
 
 type BookingTableRowProps = {
   bookingRequest: BookingRequest;
@@ -18,8 +18,8 @@ export default function BookingTableRow({
   user,
   onChange,
 }: BookingTableRowProps) {
-  const { t, i18n } = useTranslation(['common', 'booking']);
-  const english = i18n.language === 'en';
+  const { t, i18n } = useTranslation(["common", "booking"]);
+  const english = i18n.language === "en";
 
   return (
     <TableRow>
@@ -33,7 +33,9 @@ export default function BookingTableRow({
         {bookingRequest.event}
       </TableCell>
       <TableCell align="left" colSpan={3}>
-        {bookingRequest.what.map(bookable => english ? bookable.name_en : bookable.name).join(', ')}
+        {bookingRequest.what
+          .map((bookable) => (english ? bookable.name_en : bookable.name))
+          .join(", ")}
       </TableCell>
       <TableCell align="left" colSpan={3}>
         {t(`booking:${bookingRequest.status}`)}

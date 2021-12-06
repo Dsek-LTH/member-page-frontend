@@ -1,4 +1,4 @@
-import { thisYear } from "~/functions/thisYear";
+import { thisYear } from "~/utils/thisYear";
 import { useGetMandatesByPeriodQuery } from "~/generated/graphql";
 
 export const useCurrentMandates = () => {

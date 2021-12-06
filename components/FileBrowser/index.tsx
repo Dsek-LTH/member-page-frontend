@@ -10,24 +10,24 @@ import {
   FileNavbar,
   FileToolbar,
   FileContextMenu,
-} from 'chonky';
-import { ChonkyIconFA } from 'chonky-icon-fontawesome';
-import React, { useMemo, useState } from 'react';
+} from "chonky";
+import { ChonkyIconFA } from "chonky-icon-fontawesome";
+import React, { useMemo, useState } from "react";
 import {
   useFilesQuery,
   useMoveObjectsMutation,
   usePresignedPutUrlQuery,
   useRemoveObjectsMutation,
-} from '~/generated/graphql';
-import UploadModal from './UploadModal';
-import putFile from '~/functions/putFile';
-import Chonkyi18n from './Chonkyi18n';
-import { useTranslation } from 'next-i18next';
-import { hasAccess, useApiAccess } from '~/providers/ApiAccessProvider';
-import { useFileActionHandler } from './useFileActionHandler';
-import { useTheme } from '@mui/material/styles';
-import NoTitleLayout from '../NoTitleLayout';
-import { MuiThemeProvider } from '@material-ui/core';
+} from "~/generated/graphql";
+import UploadModal from "./UploadModal";
+import putFile from "~/utils/putFile";
+import Chonkyi18n from "./Chonkyi18n";
+import { useTranslation } from "next-i18next";
+import { hasAccess, useApiAccess } from "~/providers/ApiAccessProvider";
+import { useFileActionHandler } from "./useFileActionHandler";
+import { useTheme } from "@mui/material/styles";
+import NoTitleLayout from "../NoTitleLayout";
+import { MuiThemeProvider } from "@material-ui/core";
 
 setChonkyDefaults({ iconComponent: ChonkyIconFA });
 
@@ -44,14 +44,14 @@ export default function Browser({ bucket }: Props) {
   const theme = useTheme();
   const fileBrowserRef = React.useRef<FileBrowserHandle>(null);
   const [folderChain, setFolderChain] = useState<FileData[]>([
-    { id: 'public/', name: 'root', isDir: true },
+    { id: "public/", name: "root", isDir: true },
   ]);
   const currentPath = folderChain[folderChain.length - 1].id;
   const [files, setFiles] = useState<FileData[]>();
   const [uploadModalOpen, setuploadModalOpen] = useState<boolean>(false);
   const [uploadFiles, setUploadFiles] = useState<File[]>([]);
 
-  const { t, i18n } = useTranslation(['common', 'fileBrowser']);
+  const { t, i18n } = useTranslation(["common", "fileBrowser"]);
   const apiContext = useApiAccess();
 
   const fileActions: FileAction[] = [
@@ -68,7 +68,7 @@ export default function Browser({ bucket }: Props) {
       bucket: hasAccess(apiContext, `fileHandler:${bucket}:read`) && bucket,
       prefix: currentPath,
     },
-    fetchPolicy: 'no-cache',
+    fetchPolicy: "no-cache",
     onCompleted: (data) => {
       setFiles(data.files);
     },
@@ -81,9 +81,9 @@ export default function Browser({ bucket }: Props) {
         hasAccess(apiContext, `fileHandler:${bucket}:create`) &&
         uploadFiles.length > 0
           ? currentPath + uploadFiles[0].name
-          : '',
+          : "",
     },
-    fetchPolicy: 'no-cache',
+    fetchPolicy: "no-cache",
     onCompleted: (data) => {
       if (!uploadFiles || uploadFiles.length === 0) {
         return;
@@ -98,7 +98,7 @@ export default function Browser({ bucket }: Props) {
               id: currentPath + uploadFiles[0].name,
               isDir: false,
               thumbnailUrl: `${
-                process.env.NEXT_PUBLIC_MINIO_ADDRESS || 'http://localhost:9000'
+                process.env.NEXT_PUBLIC_MINIO_ADDRESS || "http://localhost:9000"
               }/${bucket}/${currentPath}${uploadFiles[0].name}`,
             },
           ]);
@@ -123,7 +123,7 @@ export default function Browser({ bucket }: Props) {
   });
 
   const selectedFilesIds = Array.from(
-    fileBrowserRef.current?.getFileSelection() ?? ''
+    fileBrowserRef.current?.getFileSelection() ?? ""
   );
 
   const [
@@ -179,7 +179,7 @@ export default function Browser({ bucket }: Props) {
   );
 
   const MemoI18n = useMemo(
-    () => (i18n.language !== 'en' ? Chonkyi18n(t) : {}),
+    () => (i18n.language !== "en" ? Chonkyi18n(t) : {}),
     [i18n.language]
   );
 
@@ -188,7 +188,7 @@ export default function Browser({ bucket }: Props) {
       <div style={{ height: 400 }}>
         <MuiThemeProvider theme={theme}>
           <FullFileBrowser
-            darkMode={theme.palette.mode === 'dark'}
+            darkMode={theme.palette.mode === "dark"}
             files={files}
             folderChain={folderChain}
             fileActions={fileActions}

@@ -1,26 +1,26 @@
-import React from 'react';
-import { useTranslation } from 'next-i18next';
+import React from "react";
+import { useTranslation } from "next-i18next";
 import "react-mde/lib/styles/css/react-mde-all.css";
-import { Autocomplete, Box, Stack, TextField } from '@mui/material';
-import SaveIcon from '@mui/icons-material/Save';
-import { LoadingButton } from '@mui/lab';
-import { MutationFunctionOptions } from '@apollo/client';
-import { onboardingEditorStyles } from './onboardingEditorStyles';
-import { programmes } from '~/data/programmes';
-import { getListOfYearsSinceLTHFounding } from '~/functions/getListOfYearsSinceLTHFounding';
+import { Autocomplete, Box, Stack, TextField } from "@mui/material";
+import SaveIcon from "@mui/icons-material/Save";
+import { LoadingButton } from "@mui/lab";
+import { MutationFunctionOptions } from "@apollo/client";
+import { onboardingEditorStyles } from "./onboardingEditorStyles";
+import { programmes } from "~/data/programmes";
+import { getListOfYearsSinceLTHFounding } from "~/utils/getListOfYearsSinceLTHFounding";
 
 type OnboardingEditorProps = {
-  firstName: string,
-  lastName: string,
-  classProgramme: string,
-  classYear: string,
-  loading: boolean,
-  onFirstNameChange: (string: string) => void,
-  onLastNameChange: (string: string) => void,
-  onClassProgrammeChange: (string: string) => void,
-  onClassYearChange: (year: string) => void,
-  onSubmit: (options?: MutationFunctionOptions) => void
-}
+  firstName: string;
+  lastName: string;
+  classProgramme: string;
+  classYear: string;
+  loading: boolean;
+  onFirstNameChange: (string: string) => void;
+  onLastNameChange: (string: string) => void;
+  onClassProgrammeChange: (string: string) => void;
+  onClassYearChange: (year: string) => void;
+  onSubmit: (options?: MutationFunctionOptions) => void;
+};
 
 export default function OnboardingEditor({
   firstName,
@@ -32,57 +32,54 @@ export default function OnboardingEditor({
   onLastNameChange,
   onClassProgrammeChange,
   onClassYearChange,
-  onSubmit
+  onSubmit,
 }: OnboardingEditorProps) {
   const classes = onboardingEditorStyles();
-  const { t } = useTranslation(['common', 'member']);
+  const { t } = useTranslation(["common", "member"]);
 
   return (
-    <Box
-      component="form"
-      noValidate
-      autoComplete="off"
-    >
+    <Box component="form" noValidate autoComplete="off">
       <Stack spacing={2} className={classes.stack}>
         <TextField
           id="header-field"
-          label={t('member:firstName')}
+          label={t("member:firstName")}
           onChange={(value) => onFirstNameChange(value.target.value)}
-          value={firstName || ''}
+          value={firstName || ""}
         />
         <TextField
           id="header-field"
-          label={t('member:lastName')}
+          label={t("member:lastName")}
           onChange={(value) => onLastNameChange(value.target.value)}
-          value={lastName || ''}
+          value={lastName || ""}
         />
         <Autocomplete
           disablePortal
           id="header-field-auto"
           options={programmes}
           onChange={(event, value) => onClassProgrammeChange(value)}
-          value={classProgramme || ''}
-          renderInput={(params) =>
+          value={classProgramme || ""}
+          renderInput={(params) => (
             <TextField
               {...params}
               id="header-field"
-              label={t('member:classProgramme')}
-            />}
+              label={t("member:classProgramme")}
+            />
+          )}
         />
         <Autocomplete
           disablePortal
           id="header-field-year-auto"
           options={getListOfYearsSinceLTHFounding()}
           onChange={(event, value) => onClassYearChange(value)}
-          value={classYear || ''}
-          renderInput={(params) =>
+          value={classYear || ""}
+          renderInput={(params) => (
             <TextField
               {...params}
               id="header-field-year"
-              label={t('member:classYear')}
-            />}
+              label={t("member:classYear")}
+            />
+          )}
         />
-
       </Stack>
       <LoadingButton
         loading={loading}
@@ -91,11 +88,11 @@ export default function OnboardingEditor({
         variant="outlined"
         className={classes.updateButton}
         onClick={() => {
-          onSubmit()
+          onSubmit();
         }}
       >
-        {t('save')}
+        {t("save")}
       </LoadingButton>
     </Box>
-  )
+  );
 }

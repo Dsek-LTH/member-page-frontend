@@ -1,21 +1,18 @@
-import { Dispatch, SetStateAction, useState, useEffect } from 'react';
+import { Dispatch, SetStateAction, useState, useEffect } from "react";
 import {
   Calendar as ReactBigCalendar,
   luxonLocalizer,
   ToolbarProps,
   View,
-} from 'react-big-calendar';
-import { DateTime, Settings } from 'luxon';
-import { BookingRequest, EventsQuery } from '~/generated/graphql';
-import {
-  serializeBooking,
-  serializeEvent,
-} from '~/functions/calendarFunctions';
-import EventView from './EventView';
-import { useTranslation } from 'react-i18next';
-import { CalendarEvent, CalendarEventType } from '~/types/CalendarEvent';
-import Router from 'next/router';
-import routes from '~/routes';
+} from "react-big-calendar";
+import { DateTime, Settings } from "luxon";
+import { BookingRequest, EventsQuery } from "~/generated/graphql";
+import { serializeBooking, serializeEvent } from "~/utils/calendarFunctions";
+import EventView from "./EventView";
+import { useTranslation } from "react-i18next";
+import { CalendarEvent, CalendarEventType } from "~/types/CalendarEvent";
+import Router from "next/router";
+import routes from "~/routes";
 
 export type CustomToolbarProps = {
   showEvents: boolean;
@@ -25,12 +22,12 @@ export type CustomToolbarProps = {
 } & ToolbarProps;
 
 export enum Size {
-  Small = 'sm',
-  Large = 'lg',
+  Small = "sm",
+  Large = "lg",
 }
 
 type PropTypes = {
-  events: EventsQuery['events']['events'];
+  events: EventsQuery["events"]["events"];
   bookings: BookingRequest[];
   height: string;
   CustomToolbar: React.ComponentType<CustomToolbarProps>;
@@ -44,7 +41,7 @@ export default function Calendar({
   height,
   CustomToolbar,
   size = Size.Large,
-  views = ['month', 'week', 'day'],
+  views = ["month", "week", "day"],
 }: PropTypes) {
   const [showEvents, setShowEvents] = useState(true);
   const [showBookings, setShowBookings] = useState(false);
@@ -80,8 +77,8 @@ export default function Calendar({
     }
   }, [serializedEvents, showEvents, showBookings]);
 
-  const { t, i18n } = useTranslation('common');
-  Settings.defaultLocale = 'sv';
+  const { t, i18n } = useTranslation("common");
+  Settings.defaultLocale = "sv";
   // @ts-ignore
   const localizer = luxonLocalizer(DateTime, {
     firstDayOfWeek: 1,
@@ -104,7 +101,7 @@ export default function Calendar({
           const isToday =
             `${date.getMonth()}${date.getDate()}` ===
             `${today.getMonth()}${today.getDate()}`;
-          return <div className={`rbc-day-bg ${isToday ? 'rbc-today' : ''}`} />;
+          return <div className={`rbc-day-bg ${isToday ? "rbc-today" : ""}`} />;
         },
         toolbar: (props) => (
           <CustomToolbar
@@ -135,8 +132,9 @@ export default function Calendar({
         },
       }}
       eventPropGetter={(event) => ({
-        className: `event_${event.type}${selectedEventId === event.id ? '_selected' : ''
-          } event_${size}`,
+        className: `event_${event.type}${
+          selectedEventId === event.id ? "_selected" : ""
+        } event_${size}`,
       })}
       onShowMore={() => {
         Router.push(routes.calendar);

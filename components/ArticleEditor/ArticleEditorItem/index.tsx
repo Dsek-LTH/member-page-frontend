@@ -1,21 +1,21 @@
-import React, { useContext, useEffect } from 'react';
-import { useTranslation } from 'next-i18next';
+import React, { useContext, useEffect } from "react";
+import { useTranslation } from "next-i18next";
 //@ts-ignore package does not have typescript types
-import ReactMde from 'react-mde';
-import 'react-mde/lib/styles/css/react-mde-all.css';
-import ReactMarkdown from 'react-markdown';
-import { Button, Stack, TextField, Typography } from '@mui/material';
-import { articleEditorItemStyles } from './articleEditorItemStyles';
-import { useGetPresignedPutUrlMutation } from '~/generated/graphql';
-import { v4 as uuidv4 } from 'uuid';
-import * as FileType from 'file-type/browser';
-import putFile from '~/functions/putFile';
-import PhotoCamera from '@mui/icons-material/PhotoCamera';
+import ReactMde from "react-mde";
+import "react-mde/lib/styles/css/react-mde-all.css";
+import ReactMarkdown from "react-markdown";
+import { Button, Stack, TextField, Typography } from "@mui/material";
+import { articleEditorItemStyles } from "./articleEditorItemStyles";
+import { useGetPresignedPutUrlMutation } from "~/generated/graphql";
+import { v4 as uuidv4 } from "uuid";
+import * as FileType from "file-type/browser";
+import putFile from "~/utils/putFile";
+import PhotoCamera from "@mui/icons-material/PhotoCamera";
 type EditorProps = {
   header: string;
   body: string;
-  selectedTab: 'write' | 'preview';
-  onTabChange: (tab: 'write' | 'preview') => void;
+  selectedTab: "write" | "preview";
+  onTabChange: (tab: "write" | "preview") => void;
   onHeaderChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onImageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   imageName: string;
@@ -33,7 +33,7 @@ export default function ArticleEditorItem({
   imageName,
 }: EditorProps) {
   const classes = articleEditorItemStyles();
-  const [fileName, setFileName] = React.useState('');
+  const [fileName, setFileName] = React.useState("");
 
   const [getPresignedPutUrlMutation] = useGetPresignedPutUrlMutation({
     variables: {
@@ -41,17 +41,17 @@ export default function ArticleEditorItem({
     },
   });
 
-  const { t } = useTranslation(['common', 'news']);
+  const { t } = useTranslation(["common", "news"]);
 
   const saveImage = async function* (inputData: ArrayBuffer) {
     const fileType = await FileType.fromBuffer(inputData);
-    const file = new File([inputData], 'name', { type: fileType.mime });
+    const file = new File([inputData], "name", { type: fileType.mime });
     setFileName(`public/${uuidv4()}.${fileType.ext}`);
 
     const data = await getPresignedPutUrlMutation();
     putFile(data.data.article.presignedPutUrl, file, file.type);
 
-    yield data.data.article.presignedPutUrl.split('?')[0];
+    yield data.data.article.presignedPutUrl.split("?")[0];
     return true;
   };
 
@@ -59,7 +59,7 @@ export default function ArticleEditorItem({
     <Stack spacing={2}>
       <TextField
         id="header-field"
-        label={t('news:header')}
+        label={t("news:header")}
         onChange={onHeaderChange}
         multiline
         value={header}
@@ -76,7 +76,7 @@ export default function ArticleEditorItem({
           component="label"
           startIcon={<PhotoCamera />}
         >
-          {t('news:selectImage')}
+          {t("news:selectImage")}
           <input
             type="file"
             accept="image/*"
@@ -93,10 +93,10 @@ export default function ArticleEditorItem({
         selectedTab={selectedTab}
         onTabChange={onTabChange}
         l18n={{
-          write: t('news:write'),
-          preview: t('news:preview'),
-          uploadingImage: t('news:uploadingImage'),
-          pasteDropSelect: t('news:pasteDropSelect'),
+          write: t("news:write"),
+          preview: t("news:preview"),
+          uploadingImage: t("news:uploadingImage"),
+          pasteDropSelect: t("news:pasteDropSelect"),
         }}
         generateMarkdownPreview={(markdown) =>
           Promise.resolve(<ReactMarkdown source={markdown} />)

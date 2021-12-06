@@ -1,12 +1,12 @@
-import React from 'react';
-import { useNewsPageQuery } from '../../generated/graphql';
-import Article from './article';
-import { useTranslation } from 'next-i18next';
-import ArticleSkeleton from './articleSkeleton';
-import { useKeycloak } from '@react-keycloak/ssr';
-import { KeycloakInstance } from 'keycloak-js';
-import { getFullName } from '~/functions/memberFunctions';
-import { selectTranslation } from '~/functions/selectTranslation';
+import React from "react";
+import { useNewsPageQuery } from "../../generated/graphql";
+import Article from "./article";
+import { useTranslation } from "next-i18next";
+import ArticleSkeleton from "./articleSkeleton";
+import { useKeycloak } from "@react-keycloak/ssr";
+import { KeycloakInstance } from "keycloak-js";
+import { getFullName } from "~/utils/memberFunctions";
+import { selectTranslation } from "~/utils/selectTranslation";
 
 type newsPageProps = {
   pageIndex?: number;
@@ -23,7 +23,7 @@ export default function ArticleSet({
     variables: { page_number: pageIndex, per_page: articlesPerPage },
   });
   const { initialized } = useKeycloak<KeycloakInstance>();
-  const { t, i18n } = useTranslation('news');
+  const { t, i18n } = useTranslation("news");
 
   if (loading || !initialized)
     return (
@@ -34,7 +34,7 @@ export default function ArticleSet({
       </>
     );
 
-  if (!data?.news) return <p>{t('failedLoadingNews')}</p>;
+  if (!data?.news) return <p>{t("failedLoadingNews")}</p>;
 
   return (
     <div>
@@ -54,7 +54,7 @@ export default function ArticleSet({
             </Article>
           </div>
         ) : (
-          <div>{t('articleError')}</div>
+          <div>{t("articleError")}</div>
         )
       )}
     </div>

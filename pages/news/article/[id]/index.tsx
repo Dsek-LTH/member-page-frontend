@@ -1,15 +1,15 @@
-import React from 'react';
-import { useTranslation } from 'next-i18next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { useArticleQuery } from '~/generated/graphql';
-import Article from '~/components/News/article';
-import { useRouter } from 'next/router';
-import ArticleSkeleton from '~/components/News/articleSkeleton';
-import { useKeycloak } from '@react-keycloak/ssr';
-import { KeycloakInstance } from 'keycloak-js';
-import { getFullName } from '~/functions/memberFunctions';
-import { selectTranslation } from '~/functions/selectTranslation';
-import NoTitleLayout from '~/components/NoTitleLayout';
+import React from "react";
+import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { useArticleQuery } from "~/generated/graphql";
+import Article from "~/components/News/article";
+import { useRouter } from "next/router";
+import ArticleSkeleton from "~/components/News/articleSkeleton";
+import { useKeycloak } from "@react-keycloak/ssr";
+import { KeycloakInstance } from "keycloak-js";
+import { getFullName } from "~/utils/memberFunctions";
+import { selectTranslation } from "~/utils/selectTranslation";
+import NoTitleLayout from "~/components/NoTitleLayout";
 
 export default function ArticlePage() {
   const router = useRouter();
@@ -19,7 +19,7 @@ export default function ArticlePage() {
     variables: { id: id },
   });
 
-  const { t, i18n } = useTranslation(['common', 'news']);
+  const { t, i18n } = useTranslation(["common", "news"]);
 
   if (loading || !initialized) {
     return (
@@ -32,7 +32,7 @@ export default function ArticlePage() {
   const article = data?.article;
 
   if (!article) {
-    return <NoTitleLayout>{t('articleError')}</NoTitleLayout>;
+    return <NoTitleLayout>{t("articleError")}</NoTitleLayout>;
   }
 
   return (
@@ -55,7 +55,7 @@ export default function ArticlePage() {
 export async function getServerSideProps({ locale }) {
   return {
     props: {
-      ...(await serverSideTranslations(locale, ['common', 'news'])),
+      ...(await serverSideTranslations(locale, ["common", "news"])),
     },
   };
 }

@@ -1,5 +1,5 @@
-import React, { useContext, useState } from 'react';
-import { useTranslation } from 'next-i18next';
+import React, { useContext, useState } from "react";
+import { useTranslation } from "next-i18next";
 import {
   Backdrop,
   Box,
@@ -13,27 +13,27 @@ import {
   Theme,
   Typography,
   useTheme,
-} from '@mui/material';
-import ButtonBase from '@mui/material/ButtonBase';
-import { useKeycloak } from '@react-keycloak/ssr';
-import { KeycloakInstance } from 'keycloak-js';
-import Link from 'next/link';
-import DsekIcon from '../Icons/DsekIcon';
-import UserAvatar from '../UserAvatar';
-import routes from '~/routes';
-import UserContext from '~/providers/UserProvider';
-import { getFullName } from '~/functions/memberFunctions';
-import { createStyles, makeStyles } from '@mui/styles';
-import { isServer } from '~/functions/isServer';
-import DarkModeSelector from './components/DarkModeSelector';
-import LanguageSelector from './components/LanguageSelector';
+} from "@mui/material";
+import ButtonBase from "@mui/material/ButtonBase";
+import { useKeycloak } from "@react-keycloak/ssr";
+import { KeycloakInstance } from "keycloak-js";
+import Link from "next/link";
+import DsekIcon from "../Icons/DsekIcon";
+import UserAvatar from "../UserAvatar";
+import routes from "~/routes";
+import UserContext from "~/providers/UserProvider";
+import { getFullName } from "~/utils/memberFunctions";
+import { createStyles, makeStyles } from "@mui/styles";
+import { isServer } from "~/utils/isServer";
+import DarkModeSelector from "./components/DarkModeSelector";
+import LanguageSelector from "./components/LanguageSelector";
 
 const useHeaderStyles = makeStyles((theme: Theme) =>
   createStyles({
     box: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
       paddingTop: theme.spacing(2),
       paddingBottom: theme.spacing(2),
       paddingRight: theme.spacing(4),
@@ -60,25 +60,25 @@ function Header() {
 const useAccountStyles = makeStyles((theme: Theme) =>
   createStyles({
     userCard: {
-      position: 'absolute',
-      top: '72px',
-      margin: '0 auto',
-      textAlign: 'center',
-      width: '90%',
-      [theme.breakpoints.up('sm')]: {
-        width: '354px',
+      position: "absolute",
+      top: "72px",
+      margin: "0 auto",
+      textAlign: "center",
+      width: "90%",
+      [theme.breakpoints.up("sm")]: {
+        width: "354px",
         margin: 0,
         right: theme.spacing(4),
       },
     },
     backdrop: {
       zIndex: 2000,
-      [theme.breakpoints.up('sm')]: {
-        backgroundColor: 'transparent',
+      [theme.breakpoints.up("sm")]: {
+        backgroundColor: "transparent",
       },
     },
     avatar: {
-      marginLeft: '0.5rem',
+      marginLeft: "0.5rem",
     },
   })
 );
@@ -97,19 +97,19 @@ function Account() {
   const [open, setOpen] = useState(false);
   const { keycloak, initialized } = useKeycloak<KeycloakInstance>();
   const { user, loading } = useContext(UserContext);
-  const { t } = useTranslation('common');
+  const { t } = useTranslation("common");
 
   if (!keycloak?.authenticated)
     return (
       <Layout>
         <Button
           style={{
-            minWidth: '5.25rem',
-            visibility: initialized && !isServer ? 'visible' : 'hidden',
+            minWidth: "5.25rem",
+            visibility: initialized && !isServer ? "visible" : "hidden",
           }}
           onClick={() => keycloak.login()}
         >
-          {t('sign in')}
+          {t("sign in")}
         </Button>
       </Layout>
     );
@@ -122,7 +122,7 @@ function Account() {
   if (!user)
     return (
       <Layout>
-        <Typography>{t('failed')}</Typography>
+        <Typography>{t("failed")}</Typography>
       </Layout>
     );
   return (
@@ -141,7 +141,7 @@ function Account() {
       >
         <Card className={classes.userCard}>
           <CardContent>
-            <Typography variant="overline"> {t('logged in as')} </Typography>
+            <Typography variant="overline"> {t("logged in as")} </Typography>
             <Typography variant="h6"> {getFullName(user)} </Typography>
             <Typography variant="subtitle1" gutterBottom>
               {user.student_id}
@@ -150,13 +150,13 @@ function Account() {
           </CardContent>
           <CardContent>
             <Link href={routes.member(user.id)}>
-              <Button variant="outlined">{t('show profile')}</Button>
+              <Button variant="outlined">{t("show profile")}</Button>
             </Link>
           </CardContent>
           <Divider />
           <CardContent>
             <Button onClick={() => keycloak.logout()} variant="outlined">
-              {t('sign out')}
+              {t("sign out")}
             </Button>
           </CardContent>
         </Card>
