@@ -1,73 +1,116 @@
-import React, { useContext, useEffect } from "react";
-import { useTranslation } from "next-i18next";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useRouter } from 'next/router';
+import { useKeycloak } from '@react-keycloak/ssr';
+import { KeycloakInstance } from 'keycloak-js';
+import Paper from '@mui/material/Paper';
+import { Typography } from '@mui/material';
+import { v4 as uuidv4 } from 'uuid';
+import * as FileType from 'file-type/browser';
 import {
-  useArticleQuery,
+  Member,
+  useArticleToEditQuery,
   useRemoveArticleMutation,
   useUpdateArticleMutation,
-} from "../../../../generated/graphql";
-import { useRouter } from "next/router";
-import { useKeycloak } from "@react-keycloak/ssr";
-import { KeycloakInstance } from "keycloak-js";
-import ArticleEditor from "~/components/ArticleEditor";
-import Paper from "@mui/material/Paper";
-import { commonPageStyles } from "~/styles/commonPageStyles";
-import { Typography } from "@mui/material";
-import UserContext from "~/providers/UserProvider";
-import ArticleEditorSkeleton from "~/components/ArticleEditor/ArticleEditorSkeleton";
-import routes from "~/routes";
-import SuccessSnackbar from "~/components/Snackbars/SuccessSnackbar";
-import ErrorSnackbar from "~/components/Snackbars/ErrorSnackbar";
-import { v4 as uuidv4 } from "uuid";
-import * as FileType from "file-type/browser";
-import putFile from "~/utils/putFile";
-import { hasAccess, useApiAccess } from "~/providers/ApiAccessProvider";
-import NoTitleLayout from "~/components/NoTitleLayout";
+} from '../../../../generated/graphql';
+import ArticleEditor from '~/components/ArticleEditor';
+import commonPageStyles from '~/styles/commonPageStyles';
+import { useUser } from '~/providers/UserProvider';
+import ArticleEditorSkeleton from '~/components/ArticleEditor/ArticleEditorSkeleton';
+import routes from '~/routes';
+import putFile from '~/functions/putFile';
+import { hasAccess, useApiAccess } from '~/providers/ApiAccessProvider';
+import NoTitleLayout from '~/components/NoTitleLayout';
+import { useSnackbar } from '~/providers/SnackbarProvider';
+import handleApolloError from '~/functions/handleApolloError';
+import { getFullName } from '~/functions/memberFunctions';
 
 export default function EditArticlePage() {
   const router = useRouter();
   const id = router.query.id as string;
   const { keycloak, initialized } = useKeycloak<KeycloakInstance>();
-  const articleQuery = useArticleQuery({
-    variables: { id: id },
+  const articleQuery = useArticleToEditQuery({
+    variables: { id },
   });
 
-  const { user, loading: userLoading } = useContext(UserContext);
+  const { loading: userLoading } = useUser();
+  const [mandateId, setMandateId] = useState('none');
+  const [publishAsOptions, setPublishAsOptions] = useState<
+    { id: string; label: string }[]
+  >([{ id: 'none', label: '' }]);
 
-  const { t } = useTranslation(["common", "news"]);
+  useEffect(() => {
+    if (articleQuery?.data?.article.author) {
+      const { author } = articleQuery.data.article;
+      let member;
+      let defaultMandateId = 'none';
+      if (author.__typename === 'Member') {
+        member = author as Member;
+      }
+      if (author.__typename === 'Mandate') {
+        member = author.member as Member;
+        defaultMandateId = author.id;
+      }
+      setMandateId(defaultMandateId);
+      setPublishAsOptions([
+        { id: 'none', label: getFullName(member) },
+        ...member.mandates.map((mandate) => ({
+          id: mandate.id,
+          label: `${getFullName(member)}, ${mandate.position.name}`,
+        })),
+      ]);
+    }
+  }, [articleQuery?.data?.article]);
+
+  const { showMessage } = useSnackbar();
+
+  const { t } = useTranslation();
   const classes = commonPageStyles();
 
-  const [selectedTab, setSelectedTab] = React.useState<"write" | "preview">(
-    "write"
+  const [selectedTab, setSelectedTab] = React.useState<'write' | 'preview'>(
+    'write',
   );
-  const [body, setBody] = React.useState({ sv: "", en: "" });
-  const [header, setHeader] = React.useState({ sv: "", en: "" });
+  const [body, setBody] = React.useState({ sv: '', en: '' });
+  const [header, setHeader] = React.useState({ sv: '', en: '' });
   const [imageFile, setImageFile] = React.useState<File | undefined>(undefined);
-  const [imageName, setImageName] = React.useState("");
-  const [successOpen, setSuccessOpen] = React.useState(false);
-  const [errorOpen, setErrorOpen] = React.useState(false);
-  const [updateArticleMutation, articleMutationStatus] =
-    useUpdateArticleMutation({
-      variables: {
-        id: id,
-        header: header.sv,
-        headerEn: header.en,
-        body: body.sv,
-        bodyEn: body.en,
-        imageName: imageFile ? imageName : undefined,
-      },
-    });
+  const [imageName, setImageName] = React.useState('');
+
+  const [updateArticleMutation, articleMutationStatus] = useUpdateArticleMutation({
+    variables: {
+      id,
+      header: header.sv,
+      headerEn: header.en,
+      body: body.sv,
+      bodyEn: body.en,
+      imageName: imageFile ? imageName : undefined,
+      mandateId: mandateId !== 'none' ? mandateId : undefined,
+    },
+    onCompleted: () => {
+      showMessage(t('edit_saved'), 'success');
+    },
+    onError: (error) => {
+      handleApolloError(error, showMessage, t);
+    },
+  });
   const [removeArticleMutation, removeArticleStatus] = useRemoveArticleMutation(
     {
       variables: {
-        id: id,
+        id,
       },
-    }
+      onCompleted: () => {
+        showMessage(t('edit_saved'), 'success');
+        router.push(routes.root);
+      },
+      onError: (error) => {
+        handleApolloError(error, showMessage, t);
+      },
+    },
   );
   const apiContext = useApiAccess();
 
   const updateArticle = async () => {
-    let fileType = undefined;
+    let fileType;
     if (imageFile) {
       fileType = await FileType.fromBlob(imageFile);
       setImageName(`public/${uuidv4()}.${fileType.ext}`);
@@ -75,48 +118,33 @@ export default function EditArticlePage() {
 
     const data = await updateArticleMutation();
     if (imageFile) {
-      putFile(data.data.article.update.uploadUrl, imageFile, fileType.mime);
+      putFile(
+        data.data.article.update.uploadUrl,
+        imageFile,
+        fileType.mime,
+        showMessage,
+        t,
+      );
     }
   };
 
   const removeArticle = () => {
-    if (window.confirm(t("news:areYouSureYouWantToDeleteThisArticle"))) {
-      removeArticleMutation()
-        .then(() => {
-          router.push(routes.root);
-        })
-        .catch(() => {
-          setErrorOpen(true);
-        });
+    if (window.confirm(t('news:confirm_delete'))) {
+      removeArticleMutation();
     }
   };
 
   useEffect(() => {
     setBody({
-      sv: articleQuery.data?.article.body || "",
-      en: articleQuery.data?.article.bodyEn || "",
+      sv: articleQuery.data?.article.body || '',
+      en: articleQuery.data?.article.bodyEn || '',
     });
     setHeader({
-      sv: articleQuery.data?.article.header || "",
-      en: articleQuery.data?.article.headerEn || "",
+      sv: articleQuery.data?.article.header || '',
+      en: articleQuery.data?.article.headerEn || '',
     });
     setImageName(articleQuery.data?.article?.imageUrl);
   }, [articleQuery.data]);
-
-  useEffect(() => {
-    if (!articleMutationStatus.loading && articleMutationStatus.called) {
-      if (articleMutationStatus.error) {
-        setErrorOpen(true);
-        setSuccessOpen(false);
-      } else {
-        setErrorOpen(false);
-        setSuccessOpen(true);
-      }
-    } else {
-      setSuccessOpen(false);
-      setErrorOpen(false);
-    }
-  }, [articleMutationStatus.loading]);
 
   if (articleQuery.loading || !initialized || userLoading) {
     return (
@@ -131,34 +159,22 @@ export default function EditArticlePage() {
   const article = articleQuery.data?.article;
 
   if (!article) {
-    return <NoTitleLayout>{t("articleError")}</NoTitleLayout>;
+    return <NoTitleLayout>{t('articleError')}</NoTitleLayout>;
   }
 
   if (
-    !keycloak?.authenticated ||
-    !hasAccess(apiContext, "news:article:update")
+    !keycloak?.authenticated
+    || !hasAccess(apiContext, 'news:article:update')
   ) {
-    return <>{t("notAuthenticated")}</>;
+    return <>{t('notAuthenticated')}</>;
   }
 
   return (
     <NoTitleLayout>
       <Paper className={classes.innerContainer}>
         <Typography variant="h3" component="h1">
-          {t("news:editArticle")}
+          {t('news:editArticle')}
         </Typography>
-
-        <SuccessSnackbar
-          open={successOpen}
-          onClose={setSuccessOpen}
-          message={t("edit_saved")}
-        />
-
-        <ErrorSnackbar
-          open={errorOpen}
-          onClose={setErrorOpen}
-          message={t("error")}
-        />
 
         <ArticleEditor
           header={header}
@@ -171,12 +187,15 @@ export default function EditArticlePage() {
           removeLoading={removeArticleStatus.loading}
           removeArticle={removeArticle}
           onSubmit={updateArticle}
-          saveButtonText={t("update")}
+          saveButtonText={t('update')}
           onImageChange={(file: File) => {
             setImageFile(file);
             setImageName(file.name);
           }}
           imageName={imageName}
+          publishAsOptions={publishAsOptions}
+          mandateId={mandateId}
+          setMandateId={setMandateId}
         />
       </Paper>
     </NoTitleLayout>
@@ -186,7 +205,7 @@ export default function EditArticlePage() {
 export async function getServerSideProps({ locale }) {
   return {
     props: {
-      ...(await serverSideTranslations(locale, ["common", "news"])),
+      ...(await serverSideTranslations(locale, ['common', 'news'])),
     },
   };
 }

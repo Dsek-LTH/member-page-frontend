@@ -1,11 +1,16 @@
 import React from 'react';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'react-i18next';
 import FileBrowser from '~/components/FileBrowser';
 
-const BUCKET_NAME = 'documents';
-
 export default function DocumentPage() {
-  return <FileBrowser bucket={BUCKET_NAME} />;
+  const { t } = useTranslation();
+  return (
+    <>
+      <h2>{t('meetingDocuments')}</h2>
+      <FileBrowser bucket="documents" />
+    </>
+  );
 }
 
 export const getStaticProps = async ({ locale }) => ({

@@ -1,15 +1,14 @@
 import React, { useEffect } from 'react';
-import GraphQLProvider from '../providers/GraphQLProvider';
-import LoginProvider from '../providers/LoginProvider';
-import ThemeProvider from '../providers/ThemeProvider';
 import { appWithTranslation } from 'next-i18next';
 import { AppProps } from 'next/app';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import ThemeProvider from '../providers/ThemeProvider';
+import LoginProvider from '../providers/LoginProvider';
 import { UserProvider } from '~/providers/UserProvider';
 import { ApiAccessProvider } from '~/providers/ApiAccessProvider';
-import UserExistingCheck from '~/components/Users/UserExsistingCheck';
 import '~/styles/react-big-calendar.css';
 import Layout from '~/components/layout';
+import { SnackbarProvider } from '~/providers/SnackbarProvider';
 
 function MyApp({ Component, pageProps, cookies }: AppProps & { cookies: any }) {
   useEffect(() => {
@@ -21,23 +20,19 @@ function MyApp({ Component, pageProps, cookies }: AppProps & { cookies: any }) {
   }, []);
 
   return (
-    <>
-      <LoginProvider cookies={cookies}>
-        <GraphQLProvider>
-          <ThemeProvider>
-            <UserProvider>
-              <UserExistingCheck>
-                <ApiAccessProvider>
-                  <Layout>
-                    <Component {...pageProps} />
-                  </Layout>
-                </ApiAccessProvider>
-              </UserExistingCheck>
-            </UserProvider>
-          </ThemeProvider>
-        </GraphQLProvider>
-      </LoginProvider>
-    </>
+    <LoginProvider cookies={cookies}>
+      <ThemeProvider>
+        <UserProvider>
+          <ApiAccessProvider>
+            <SnackbarProvider>
+              <Layout>
+                <Component {...pageProps} />
+              </Layout>
+            </SnackbarProvider>
+          </ApiAccessProvider>
+        </UserProvider>
+      </ThemeProvider>
+    </LoginProvider>
   );
 }
 

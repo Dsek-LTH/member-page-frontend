@@ -1,37 +1,47 @@
-import * as React from 'react'
-import { useMeHeaderQuery, Member } from '~/generated/graphql';
+import { ApolloError } from '@apollo/client';
+import * as React from 'react';
+import { useMemo, PropsWithChildren } from 'react';
+import { useMeHeaderQuery, MeHeaderQuery } from '~/generated/graphql';
 
 type userContextReturn = {
-    user: Member,
-    loading: boolean
-}
+  user: MeHeaderQuery['me'];
+  loading: boolean;
+  error: ApolloError;
+  refetch: () => void;
+};
 
-const defaultContext:userContextReturn = {
-    user: undefined,
-    loading: true
-}
+const defaultContext: userContextReturn = {
+  user: undefined,
+  loading: true,
+  error: null,
+  refetch: () => {},
+};
 
 const UserContext = React.createContext(defaultContext);
 
-export function UserProvider({ children }) {
-    const { loading, data } = useMeHeaderQuery();
-    const user = data?.me || undefined;
+export function UserProvider({ children }: PropsWithChildren<{}>) {
+  const {
+    loading, data, error, refetch,
+  } = useMeHeaderQuery();
+  const user = data?.me || undefined;
 
-    return (
-        <UserContext.Provider value={{
-            user,
-            loading
-        }}
-        >{children}</UserContext.Provider>
-    )
+  const memoized = useMemo(() => ({
+    user, loading, error, refetch,
+  }), [error, loading, refetch, user]);
+
+  return (
+    <UserContext.Provider value={memoized}>
+      {children}
+    </UserContext.Provider>
+  );
 }
 
 export function useUser() {
-    const context = React.useContext(UserContext)
-    if (context === undefined) {
-        throw new Error('useUser must be used within a UserProvider')
-    }
-    return context
+  const context = React.useContext(UserContext);
+  if (context === undefined) {
+    throw new Error('useUser must be used within a UserProvider');
+  }
+  return context;
 }
 
 export default UserContext;

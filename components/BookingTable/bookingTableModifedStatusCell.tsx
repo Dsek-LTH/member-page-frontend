@@ -2,12 +2,14 @@ import React from 'react';
 import { useTranslation } from 'next-i18next';
 import 'react-mde/lib/styles/css/react-mde-all.css';
 import { TableCell, TableCellProps } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
 import {
   BookingStatus,
   useAcceptBookingRequestMutation,
   useDenyBookingRequestMutation,
 } from '~/generated/graphql';
-import { LoadingButton } from '@mui/lab';
+import { useSnackbar } from '~/providers/SnackbarProvider';
+import handleApolloError from '~/functions/handleApolloError';
 
 interface BookingTableRowProps extends TableCellProps {
   status: BookingStatus;
@@ -15,40 +17,44 @@ interface BookingTableRowProps extends TableCellProps {
   onStatusChange?: () => void;
 }
 
-export default function bookingTableModifedStatusCell({
+export default function BookingTableModifedStatusCell({
   bookingId,
   status,
   onStatusChange,
-  children,
   ...rest
 }: BookingTableRowProps) {
   const { t } = useTranslation(['common, booking']);
+  const { showMessage } = useSnackbar();
 
   const [
     denyBookingRequestMutation,
     {
-      data: denyData,
       loading: denyLoading,
-      error: denyError,
-      called: denyCalled,
     },
   ] = useDenyBookingRequestMutation({
     variables: {
       id: bookingId,
     },
+    onCompleted: () => {
+      showMessage(t('booking:requestDenied'), 'success');
+    },
+    onError: (error) => handleApolloError(error, showMessage, t, 'booking:bookingError'),
   });
 
   const [
     acceptBookingRequestMutation,
     {
-      data: acceptData,
       loading: acceptLoading,
-      error: acceptError,
-      called: acceptCalled,
     },
   ] = useAcceptBookingRequestMutation({
     variables: {
       id: bookingId,
+    },
+    onCompleted: () => {
+      showMessage(t('booking:requestAccepted'), 'success');
+    },
+    onError: (error) => {
+      handleApolloError(error, showMessage, t, 'booking:bookingError');
     },
   });
 
@@ -64,7 +70,7 @@ export default function bookingTableModifedStatusCell({
 
   return (
     <TableCell {...rest}>
-      {(status == 'PENDING' || status == 'DENIED') && (
+      {(status === 'PENDING' || status === 'DENIED') && (
         <LoadingButton
           variant="text"
           onClick={accept}
@@ -75,7 +81,7 @@ export default function bookingTableModifedStatusCell({
         </LoadingButton>
       )}
 
-      {(status == 'PENDING' || status == 'ACCEPTED') && (
+      {(status === 'PENDING' || status === 'ACCEPTED') && (
         <LoadingButton
           variant="text"
           onClick={deny}

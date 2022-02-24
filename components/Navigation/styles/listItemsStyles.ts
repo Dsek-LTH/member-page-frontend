@@ -1,35 +1,36 @@
-import { makeStyles } from "@mui/styles";
+import { makeStyles } from '@mui/styles';
 
-export const listItemsStyles = makeStyles((theme) => ({
+export default makeStyles(() => ({
   nestedListItem: {
-    padding: 0,
-    color: "inherit",
+    padding: '0.5rem 1rem',
+    color: 'inherit',
 
-    "& span": {
-      fontSize: "1rem",
+    '& span': {
+      fontSize: '1rem',
     },
   },
 
   subListItem: {
-    "& svg": {
-      fontSize: "1.35rem",
+    '& svg': {
+      fontSize: '1.35rem',
     },
-    "& span": {
-      fontSize: "0.8rem",
+    '& span': {
+      fontSize: '0.8rem',
     },
   },
   listIcon: {
-    minWidth: "36px",
+    minWidth: '36px',
   },
   dropdownListItem: {
-    height: "48px",
+    padding: 0,
   },
   dropdownListIcon: {
-    height: "24px",
+    height: '24px',
+    padding: '0 1rem',
   },
   listItemAnchor: {
-    color: "inherit",
-    textDecoration: "none",
-    width: "100%",
+    color: 'inherit',
+    textDecoration: 'none',
+    width: '100%',
   },
 }));

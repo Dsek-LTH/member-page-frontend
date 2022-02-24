@@ -1,25 +1,26 @@
 import {
   createTheme,
   ThemeProvider as MaterialThemeProvider,
-} from "@mui/material/styles";
-import CssBaseline from "@mui/material/CssBaseline";
+} from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
 import React, {
   createContext,
-  FC,
+  PropsWithChildren,
   useContext,
   useEffect,
   useMemo,
   useState,
-} from "react";
-import { PaletteMode, useMediaQuery } from "@mui/material";
-import { isServer } from "~/utils/isServer";
+} from 'react';
+import { PaletteMode, useMediaQuery } from '@mui/material';
+import isServer from '~/functions/isServer';
 
 const ColorModeContext = createContext({ toggleColorMode: () => {} });
 
 export function useColorMode() {
   const state = useContext(ColorModeContext);
   if (state === undefined) {
-    console.error("useColorMode must be used within ThemeProvider");
+    // eslint-disable-next-line no-console
+    console.error('useColorMode must be used within ThemeProvider');
   }
   return state;
 }
@@ -36,33 +37,33 @@ const defaultTheme = {
   },
   palette: {
     primary: {
-      main: "#F280A1",
-      light: "rgba(242,128,161,0.1)",
+      main: '#F280A1',
+      light: 'rgba(242,128,161,0.1)',
     },
     secondary: {
-      main: "#9966CC",
+      main: '#9966CC',
     },
   },
   components: {
     MuiLink: {
       styleOverrides: {
         root: {
-          textDecoration: "none",
+          textDecoration: 'none',
         },
       },
     },
   },
 };
 
-const localStoragePref = isServer ? "light" : localStorage.getItem("mode");
+const localStoragePref = isServer ? 'light' : localStorage.getItem('mode');
 
-const ThemeProvider: FC<{}> = ({ children }) => {
-  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
-  const [mode, setMode] = useState<PaletteMode>("light");
+function ThemeProvider({ children }: PropsWithChildren<{}>) {
+  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+  const [mode, setMode] = useState<PaletteMode>('light');
 
   useEffect(() => {
     if (!localStoragePref) {
-      setMode(prefersDarkMode ? "dark" : "light");
+      setMode(prefersDarkMode ? 'dark' : 'light');
     } else {
       setMode(localStoragePref as PaletteMode);
     }
@@ -72,13 +73,13 @@ const ThemeProvider: FC<{}> = ({ children }) => {
     () => ({
       toggleColorMode: () => {
         setMode((prevMode) => {
-          const newMode = prevMode === "light" ? "dark" : "light";
-          localStorage.setItem("mode", newMode);
+          const newMode = prevMode === 'light' ? 'dark' : 'light';
+          localStorage.setItem('mode', newMode);
           return newMode;
         });
       },
     }),
-    []
+    [],
   );
 
   const theme = useMemo(() => {
@@ -96,6 +97,6 @@ const ThemeProvider: FC<{}> = ({ children }) => {
       </MaterialThemeProvider>
     </ColorModeContext.Provider>
   );
-};
+}
 
 export default ThemeProvider;

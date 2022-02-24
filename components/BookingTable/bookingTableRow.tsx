@@ -1,25 +1,25 @@
-import React from "react";
-import { useTranslation } from "next-i18next";
-import { Link, TableCell, TableRow } from "@mui/material";
-import { BookingRequest, Member } from "~/generated/graphql";
-import routes from "~/routes";
-import BookingTableModifedStatusCell from "./bookingTableModifedStatusCell";
-import fromIsoToShortDate from "~/utils/fromIsoToShortDate";
-import { getFullName } from "~/utils/memberFunctions";
+import React from 'react';
+import { useTranslation } from 'next-i18next';
+import { Link, TableCell, TableRow } from '@mui/material';
+import { BookingRequest } from '~/generated/graphql';
+import routes from '~/routes';
+import BookingTableModifedStatusCell from './bookingTableModifedStatusCell';
+import fromIsoToShortDate from '~/functions/fromIsoToShortDate';
+import { getFullName } from '~/functions/memberFunctions';
+import { hasAccess, useApiAccess } from '~/providers/ApiAccessProvider';
 
 type BookingTableRowProps = {
   bookingRequest: BookingRequest;
-  user?: Member;
   onChange?: () => void;
 };
 
 export default function BookingTableRow({
   bookingRequest,
-  user,
   onChange,
 }: BookingTableRowProps) {
-  const { t, i18n } = useTranslation(["common", "booking"]);
-  const english = i18n.language === "en";
+  const { t, i18n } = useTranslation(['common', 'booking']);
+  const english = i18n.language === 'en';
+  const apiContext = useApiAccess();
 
   return (
     <TableRow>
@@ -33,9 +33,7 @@ export default function BookingTableRow({
         {bookingRequest.event}
       </TableCell>
       <TableCell align="left" colSpan={3}>
-        {bookingRequest.what
-          .map((bookable) => (english ? bookable.name_en : bookable.name))
-          .join(", ")}
+        {bookingRequest.what.map((bookable) => (english ? bookable.name_en : bookable.name)).join(', ')}
       </TableCell>
       <TableCell align="left" colSpan={3}>
         {t(`booking:${bookingRequest.status}`)}
@@ -48,12 +46,12 @@ export default function BookingTableRow({
       <TableCell align="left" colSpan={3}>
         {fromIsoToShortDate(
           bookingRequest.last_modified || bookingRequest.created,
-          i18n.language
+          i18n.language,
         )}
       </TableCell>
       {
-        /* Whoever can edit the status on bookings*/
-        user && (
+
+        hasAccess(apiContext, 'booking_request:update') && (
           <BookingTableModifedStatusCell
             onStatusChange={onChange}
             bookingId={bookingRequest.id}
