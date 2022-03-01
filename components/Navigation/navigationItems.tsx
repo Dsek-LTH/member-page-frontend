@@ -1,4 +1,5 @@
 import React from 'react';
+import LocalCafeIcon from '@mui/icons-material/LocalCafe';
 import EventIcon from '@mui/icons-material/Event';
 import FeedIcon from '@mui/icons-material/Feed';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
@@ -96,6 +97,12 @@ const navigationItems: NavigationItem[] = [
     path: routes.doors,
     icon: <MeetingRoomIcon color="primary" />,
     hasAccess: (apiContext) => hasAccess(apiContext, 'core:access:door:create'),
+  },
+  {
+    translationKey: 'cafe',
+    path: routes.cafe,
+    icon: <LocalCafeIcon color="primary" />,
+    hasAccess: () => true,
   },
 ];
 
