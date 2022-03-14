@@ -87,6 +87,6 @@ export default function EditDoorsPage() {
 
 export const getStaticProps = async ({ locale }) => ({
   props: {
-    ...(await serverSideTranslations(locale, ['doors', 'common'])),
+    ...(await serverSideTranslations(locale, ['policy', 'common', 'doors'])),
   },
 });
