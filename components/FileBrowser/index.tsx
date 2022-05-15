@@ -11,7 +11,7 @@ import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'next-i18next';
 import { useTheme } from '@mui/material/styles';
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { MuiThemeProvider } from '@material-ui/core';
+// import { MuiThemeProvider } from '@material-ui/core';
 /**
  * For some reason chonky borks the theme it is not wrapped in a
  *  import { MuiThemeProvider } from '@material-ui/core';
@@ -33,6 +33,7 @@ import useFileActionHandler from './useFileActionHandler';
 import useClientSide from '~/hooks/useClientSide';
 import { useSnackbar } from '~/providers/SnackbarProvider';
 import handleApolloError from '~/functions/handleApolloError';
+import isServer from '~/functions/isServer';
 
 setChonkyDefaults({ iconComponent: ChonkyIconFA });
 
@@ -47,7 +48,6 @@ type Props = {
 
 export default function Browser({ bucket }: Props) {
   const theme = useTheme();
-  const clientSide = useClientSide();
   const fileBrowserRef = React.useRef<FileBrowserHandle>(null);
   const [folderChain, setFolderChain] = useState<FileData[]>([
     { id: 'public/', name: 'root', isDir: true },
@@ -179,19 +179,17 @@ export default function Browser({ bucket }: Props) {
   return (
     <>
       <div style={{ height: 400 }}>
-        {clientSide && (
-          <MuiThemeProvider theme={theme}>
-            <FullFileBrowser
-              darkMode={theme.palette.mode === 'dark'}
-              files={files}
-              folderChain={folderChain}
-              fileActions={fileActions}
-              onFileAction={handleFileAction}
-              ref={fileBrowserRef}
-              disableDragAndDrop={false}
-              i18n={MemoI18n}
-            />
-          </MuiThemeProvider>
+        {!isServer && (
+          <FullFileBrowser
+            darkMode={theme.palette.mode === 'dark'}
+            files={files}
+            folderChain={folderChain}
+            fileActions={fileActions}
+            onFileAction={handleFileAction}
+            ref={fileBrowserRef}
+            disableDragAndDrop={false}
+            i18n={MemoI18n}
+          />
         )}
       </div>
       {hasAccess(apiContext, `fileHandler:${bucket}:create`) && (
